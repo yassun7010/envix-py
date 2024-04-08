@@ -1,0 +1,196 @@
+{
+  "$defs": {
+    "ConfigV1": {
+      "additionalProperties": false,
+      "properties": {
+        "envix": {
+          "$ref": "#/$defs/EnvixV1"
+        },
+        "envs": {
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/RawEnvsV1"
+              },
+              {
+                "$ref": "#/$defs/LocalEnvsV1"
+              },
+              {
+                "$ref": "#/$defs/GoogleCloudSecretManagerEnvsV1"
+              }
+            ]
+          },
+          "title": "Envs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "envix",
+        "envs"
+      ],
+      "title": "ConfigV1",
+      "type": "object"
+    },
+    "EnvixV1": {
+      "additionalProperties": false,
+      "properties": {
+        "version": {
+          "const": 1,
+          "title": "Version"
+        }
+      },
+      "required": [
+        "version"
+      ],
+      "title": "EnvixV1",
+      "type": "object"
+    },
+    "GoogleCloudSecretManagerEnvsV1": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "GoogleCloudSecretManager",
+          "title": "Type"
+        },
+        "project_id": {
+          "title": "Google Cloud Platform のプロジェクトID。",
+          "type": "string"
+        },
+        "items": {
+          "patternProperties": {
+            "^[A-Z_]+$": {
+              "anyOf": [
+                {
+                  "examples": [
+                    "secrets/456/versions/789"
+                  ],
+                  "pattern": "secrets/\\w+/versions/([0-9]+|latest)",
+                  "type": "string"
+                },
+                {
+                  "$ref": "#/$defs/GoogleCloudSecretManagerSecret"
+                }
+              ]
+            }
+          },
+          "title": "Items",
+          "type": "object"
+        },
+        "overwrite": {
+          "default": true,
+          "title": "既に設定済みの環境変数を上書きするかどうか。",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "type",
+        "project_id",
+        "items"
+      ],
+      "title": "GoogleCloudSecretManagerEnvsV1",
+      "type": "object"
+    },
+    "GoogleCloudSecretManagerSecret": {
+      "properties": {
+        "secret_id": {
+          "title": "Secret Id",
+          "type": "string"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "const": "latest"
+            }
+          ],
+          "default": "latest",
+          "title": "Version"
+        }
+      },
+      "required": [
+        "secret_id"
+      ],
+      "title": "GoogleCloudSecretManagerSecret",
+      "type": "object"
+    },
+    "LocalEnvsV1": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "Local",
+          "title": "ローカルに設定された環境変数を利用することを明示するための設定。"
+        },
+        "items": {
+          "anyOf": [
+            {
+              "patternProperties": {
+                "^[A-Z_]+$": {
+                  "pattern": "^\\$[A-Z_]+$",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            {
+              "items": {
+                "pattern": "^[A-Z_]+$",
+                "type": "string"
+              },
+              "type": "array"
+            }
+          ],
+          "title": "ローカルから読み取る環境変数名のリスト。"
+        },
+        "overwrite": {
+          "default": true,
+          "title": "既に設定済みの環境変数を上書きするかどうか。",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "type",
+        "items"
+      ],
+      "title": "LocalEnvsV1",
+      "type": "object"
+    },
+    "RawEnvsV1": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "Raw",
+          "title": "設定ファイルに直接記述する環境変数の設定。"
+        },
+        "items": {
+          "patternProperties": {
+            "^[A-Z_]+$": {
+              "type": "string"
+            }
+          },
+          "title": "直接記述する環境変数名と値の辞書。",
+          "type": "object"
+        },
+        "overwrite": {
+          "default": true,
+          "title": "既に設定済みの環境変数を上書きするかどうか。",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "type",
+        "items"
+      ],
+      "title": "RawEnvsV1",
+      "type": "object"
+    }
+  },
+  "allOf": [
+    {
+      "$ref": "#/$defs/ConfigV1"
+    }
+  ],
+  "title": "Config"
+}
