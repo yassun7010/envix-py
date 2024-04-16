@@ -36,6 +36,12 @@ class Config(RootModel):
                 with open(filepath, "rb") as f:
                     return cls.model_validate(yaml.safe_load(f))
 
+            case ".json":
+                import json
+
+                with open(filepath, "rb") as f:
+                    return cls.model_validate(json.load(f))
+
             case _:
                 raise EnvixConfigFileExtensionError(filepath)
 
@@ -47,7 +53,7 @@ def _find_config_file() -> Path | None:
     cwd = Path(os.getcwd())
 
     for directory in (cwd, *cwd.parents):
-        for filename in ("envix.toml", "envix.yaml", "envix.yml"):
+        for filename in ("envix.toml", "envix.yaml", "envix.yml", "envix.json"):
             config_filepath = directory / filename
             if config_filepath.exists():
                 logger.debug(f"Found config file: {config_filepath}")

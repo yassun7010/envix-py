@@ -27,8 +27,9 @@ taskipy = "^1.12.2"
 format = "ruff format ."
 lint = "ruff check ."
 typecheck = "pyright src/** tests/**"
+schemacheck = "python tasks/validate_config.py"
 test = "pytest"
-ci = "task format && task lint && task typecheck && task test"
+ci = "task format && task lint && task typecheck && task schemacheck && task test"
 schema = "envix config schema > schemas/config.json"
 
 [build-system]
