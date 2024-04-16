@@ -35,3 +35,20 @@ class TestCliAppExportCommand:
             ).lstrip()
         )
         assert err == ""
+
+    def test_format_options(
+        self,
+        config_v1_builder: ConfigV1Builder,
+        capsys: pytest.CaptureFixture[str],
+    ):
+        with (
+            config_v1_builder.chain()
+            .add_envs("FOO", "1234567890")
+            .add_envs("BAR", "abcdefghijklmn")
+            .build_file()
+        ) as config_file:
+            App.run(["export", "--config-file", config_file.name, "--format", "json"])
+
+        out, err = capsys.readouterr()
+        assert out == '{"FOO": "1234567890", "BAR": "abcdefghijklmn"}\n'
+        assert err == ""
