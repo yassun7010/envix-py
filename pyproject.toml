@@ -11,7 +11,7 @@ envix = "envix.cli.__main__:main"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-pydantic = "^2.6.4"
+pydantic = "^2.7.0"
 rich = "^13.7.1"
 rich-argparse = "^1.4.0"
 pyyaml = "^6.0.1"
