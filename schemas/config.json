@@ -36,7 +36,7 @@
       "properties": {
         "version": {
           "const": 1,
-          "title": "Version"
+          "title": "envix version."
         }
       },
       "required": [
@@ -50,10 +50,10 @@
       "properties": {
         "type": {
           "const": "GoogleCloudSecretManager",
-          "title": "Type"
+          "title": "Google Cloud Secret Manager environment variables."
         },
         "project_id": {
-          "title": "Google Cloud Platform のプロジェクトID。",
+          "title": "Google Cloud Platform project ID.",
           "type": "string"
         },
         "items": {
@@ -65,6 +65,7 @@
                     "secrets/456/versions/789"
                   ],
                   "pattern": "secrets/\\w+/versions/([0-9]+|latest)",
+                  "title": "Name of the secret whose value is to be read.",
                   "type": "string"
                 },
                 {
@@ -78,7 +79,8 @@
         },
         "overwrite": {
           "default": true,
-          "title": "既に設定済みの環境変数を上書きするかどうか。",
+          "description": "Whether to overwrite existing environment variables.",
+          "title": "overwrite existing environment variables.",
           "type": "boolean"
         }
       },
@@ -121,7 +123,8 @@
       "properties": {
         "type": {
           "const": "Local",
-          "title": "ローカルに設定された環境変数を利用することを明示するための設定。"
+          "description": "Environment variables to be read from the local machine user environments.",
+          "title": "Local environment variables."
         },
         "items": {
           "anyOf": [
@@ -142,11 +145,12 @@
               "type": "array"
             }
           ],
-          "title": "ローカルから読み取る環境変数名のリスト。"
+          "title": "List of environment variable names to be read from local."
         },
         "overwrite": {
           "default": true,
-          "title": "既に設定済みの環境変数を上書きするかどうか。",
+          "description": "Whether to overwrite existing environment variables.",
+          "title": "overwrite existing environment variables.",
           "type": "boolean"
         }
       },
@@ -162,20 +166,23 @@
       "properties": {
         "type": {
           "const": "Raw",
-          "title": "設定ファイルに直接記述する環境変数の設定。"
+          "description": "Environment variable settings to be written directly in the configuration file.",
+          "title": "Raw environment variables."
         },
         "items": {
+          "description": "A dictionary of environment variable names and values to be written directly.",
           "patternProperties": {
             "^[A-Z_]+$": {
               "type": "string"
             }
           },
-          "title": "直接記述する環境変数名と値の辞書。",
+          "title": "environment variable items.",
           "type": "object"
         },
         "overwrite": {
           "default": true,
-          "title": "既に設定済みの環境変数を上書きするかどうか。",
+          "description": "Whether to overwrite existing environment variables.",
+          "title": "overwrite existing environment variables.",
           "type": "boolean"
         }
       },
