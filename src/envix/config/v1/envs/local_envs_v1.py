@@ -2,7 +2,7 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from envix._helper import DOLLAR_ENVNAME_PATTERN, ENVNAME_PATTERN
+from envix.pattern import DOLLAR_ENVNAME_PATTERN, ENVNAME_PATTERN
 
 from ._common import OverwriteType
 
