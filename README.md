@@ -2,6 +2,10 @@
 
 [![pypi package](https://badge.fury.io/py/envix.svg)](https://pypi.org/project/envix)
 
+## Support Envs Types
+- Raw
+- Local
+- GoogleCloudSecretManager
 
 ## Usage
 
