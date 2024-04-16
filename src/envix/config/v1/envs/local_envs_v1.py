@@ -12,7 +12,10 @@ class LocalEnvsV1(BaseModel):
 
     type: Annotated[
         Literal["Local"],
-        Field(title="ローカルに設定された環境変数を利用することを明示するための設定。"),
+        Field(
+            title="Local environment variables.",
+            description="Environment variables to be read from the local machine user environments.",
+        ),
     ]
     items: Annotated[
         dict[
@@ -22,11 +25,14 @@ class LocalEnvsV1(BaseModel):
             ],
             Annotated[
                 str,
-                Field(title="値を読み取る環境変数名。", pattern=DOLLAR_ENVNAME_PATTERN),
+                Field(
+                    title="Name of the environment variable whose value is to be read.",
+                    pattern=DOLLAR_ENVNAME_PATTERN,
+                ),
             ],
         ]
         | list[Annotated[str, Field(pattern=ENVNAME_PATTERN)]],
-        Field(title="ローカルから読み取る環境変数名のリスト。"),
+        Field(title="List of environment variable names to be read from local."),
     ]
 
     overwrite: OverwriteType = True

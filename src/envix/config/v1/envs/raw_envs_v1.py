@@ -12,12 +12,18 @@ class RawEnvsV1(BaseModel):
 
     type: Annotated[
         Literal["Raw"],
-        Field(title="設定ファイルに直接記述する環境変数の設定。"),
+        Field(
+            title="Raw environment variables.",
+            description="Environment variable settings to be written directly in the configuration file.",
+        ),
     ]
 
     items: Annotated[
         dict[Annotated[str, Field(pattern=ENVNAME_PATTERN)], str],
-        Field(title="直接記述する環境変数名と値の辞書。"),
+        Field(
+            title="environment variable items.",
+            description="A dictionary of environment variable names and values to be written directly.",
+        ),
     ]
 
     overwrite: OverwriteType = True

@@ -15,12 +15,15 @@ class GoogleCloudSecretManagerSecret(BaseModel):
 class GoogleCloudSecretManagerEnvsV1(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    type: Literal["GoogleCloudSecretManager"]
+    type: Annotated[
+        Literal["GoogleCloudSecretManager"],
+        Field(title="Google Cloud Secret Manager environment variables."),
+    ]
 
     project_id: Annotated[
         str,
         Field(
-            title="Google Cloud Platform のプロジェクトID。",
+            title="Google Cloud Platform project ID.",
         ),
     ]
 
@@ -29,6 +32,7 @@ class GoogleCloudSecretManagerEnvsV1(BaseModel):
         Annotated[
             str,
             Field(
+                title="Name of the secret whose value is to be read.",
                 pattern=r"secrets/\w+/versions/([0-9]+|latest)",
                 examples=["secrets/456/versions/789"],
             ),
