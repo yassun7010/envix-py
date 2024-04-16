@@ -1,15 +1,17 @@
 import os
 from argparse import ArgumentParser, _SubParsersAction
 from pathlib import Path
-from typing import Any, cast
+from typing import Annotated, Any, cast
 
 from pydantic import BaseModel
+
+from envix.cli.field import ConfigFileValidator
 
 
 class Args(BaseModel):
     command: str
     args: list[str]
-    config_file: Path | None
+    config_file: Annotated[Path | None, ConfigFileValidator]
     clear_environment: bool
 
 
