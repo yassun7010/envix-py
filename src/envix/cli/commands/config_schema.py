@@ -28,6 +28,7 @@ def add_subparser(subparsers: "_SubParsersAction[Any]", **kwargs: Any) -> None:
 
     parser.add_argument(
         "--output-file",
+        "-o",
         metavar="OUTPUT",
         help="output file path.",
         type=FileType("w"),

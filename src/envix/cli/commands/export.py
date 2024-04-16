@@ -62,7 +62,6 @@ def add_subparser(subparsers: "_SubParsersAction[Any]", **kwargs: Any) -> None:
 
     parser.add_argument(
         "--format",
-        "-f",
         help="output format.",
         choices=get_args(OutputFormat),
         default="dotenv",
