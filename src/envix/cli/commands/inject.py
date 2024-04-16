@@ -12,7 +12,7 @@ class Args(BaseModel):
     command: str
     args: list[str]
     config_file: Annotated[Path | None, ConfigFileValidator]
-    clear_environment: bool
+    clear_environments: bool
 
 
 def add_subparser(subparsers: "_SubParsersAction[Any]", **kwargs: Any) -> None:
@@ -44,7 +44,7 @@ def add_subparser(subparsers: "_SubParsersAction[Any]", **kwargs: Any) -> None:
     )
 
     parser.add_argument(
-        "--clear-environment",
+        "--clear-environments",
         action="store_true",
         help="Running commands with no environment variables set.",
         default=False,
@@ -63,7 +63,7 @@ def inject_command(args: Args) -> None:
 
     config = Config.load(args.config_file)
 
-    if args.clear_environment:
+    if args.clear_environments:
         os.environ.clear()
 
     _, errors = asyncio.run(load_envs(config))

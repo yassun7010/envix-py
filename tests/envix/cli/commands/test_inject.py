@@ -38,3 +38,38 @@ class TestCliAppInjectCommand:
             ).lstrip()
         )
         assert err == ""
+
+    @pytest.mark.parametrize(
+        ("options", "ok"),
+        [
+            ([], False),
+            (["--clear-environments"], True),
+        ],
+    )
+    def test_clear_environments(
+        self,
+        config_v1_builder: ConfigV1Builder,
+        capfd: pytest.CaptureFixture[str],
+        options: list[str],
+        ok: bool,
+    ):
+        with (
+            config_v1_builder.chain()
+            .add_envs("FOO", "1234567890")
+            .add_envs("BAR", "abcdefghijklmn")
+            .build_file()
+        ) as config_file:
+            App.run(["inject", "--config-file", config_file.name, *options, "env"])
+
+        out, err = capfd.readouterr()
+        assert (
+            out
+            == dedent(
+                """
+                FOO=1234567890
+                BAR=abcdefghijklmn
+                """
+            ).lstrip()
+        ) is ok
+
+        assert err == ""
