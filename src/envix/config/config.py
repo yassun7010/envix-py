@@ -1,3 +1,5 @@
+import os
+from logging import getLogger
 from pathlib import Path
 from typing import Self
 
@@ -7,13 +9,18 @@ from envix.exception import EnvixConfigFileExtensionError, EnvixConfigFileNotFou
 
 from .v1.config import ConfigV1
 
+logger = getLogger(__name__)
+
 
 class Config(RootModel):
     root: ConfigV1
 
     @classmethod
-    def load(cls, filepath: Path) -> Self:
+    def load(cls, filepath: Path | None) -> Self:
         import tomllib
+
+        if not (filepath := filepath or _find_config_file()):
+            raise EnvixConfigFileNotFound(Path(os.getcwd()))
 
         if not filepath.exists():
             raise EnvixConfigFileNotFound(filepath)
@@ -31,3 +38,17 @@ class Config(RootModel):
 
             case _:
                 raise EnvixConfigFileExtensionError(filepath)
+
+
+def _find_config_file() -> Path | None:
+    import os
+    from pathlib import Path
+
+    cwd = Path(os.getcwd())
+
+    for directory in (cwd, *cwd.parents):
+        for filename in ("envix.toml", "envix.yaml", "envix.yml"):
+            config_filepath = directory / filename
+            if config_filepath.exists():
+                logger.debug(f"Found config file: {config_filepath}")
+                return config_filepath

@@ -8,7 +8,7 @@ from pydantic import BaseModel
 class Args(BaseModel):
     command: str
     args: list[str]
-    config_file: Path
+    config_file: Path | None
 
 
 def add_subparser(subparsers: "_SubParsersAction[Any]", **kwargs: Any) -> None:
@@ -36,7 +36,7 @@ def add_subparser(subparsers: "_SubParsersAction[Any]", **kwargs: Any) -> None:
         metavar="CONFIG_FILE",
         help="config file path.",
         type=Path,
-        default="envix.toml",
+        default=None,
     )
 
     parser.set_defaults(handler=lambda space: inject_command(Args(**vars(space))))
@@ -47,7 +47,7 @@ def inject_command(args: Args) -> None:
     import subprocess
 
     from envix.config.config import Config
-    from envix.exception import EnvixInjectionError
+    from envix.exception import EnvixLoadEnvsError
     from envix.loader import load_envs
 
     config = Config.load(args.config_file)
@@ -55,6 +55,6 @@ def inject_command(args: Args) -> None:
     _, errors = asyncio.run(load_envs(config))
 
     if errors:
-        raise EnvixInjectionError(errors)
+        raise EnvixLoadEnvsError(errors)
 
     subprocess.call([args.command] + args.args)

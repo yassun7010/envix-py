@@ -20,7 +20,7 @@ class EnvixConfigFileExtensionError(EnvixError, ValueError):
         return f"Unsupported file format: {self.filename.suffix}"
 
 
-class EnvixInjectionError(EnvixError):
+class EnvixLoadEnvsError(EnvixError):
     def __init__(self, errors: list["EnvixEnvInjectionError"]) -> None:
         self.errors = errors
 

@@ -1,7 +1,8 @@
 import asyncio
 import os
-
 from typing import assert_never
+
+from pydantic import SecretStr
 
 from envix.config.config import Config
 from envix.config.v1.config import ConfigV1
@@ -17,25 +18,29 @@ from envix.exception import (
     EnvixGoogleCloudSecretManagerError,
 )
 
+Secrets = dict[str, SecretStr]
 
-async def load_raw_envs(
+
+async def load_raw_envs_v1(
     envs: RawEnvsV1,
-) -> tuple[list[str], list[EnvixEnvInjectionError]]:
-    envnames: list[str] = []
+) -> tuple[Secrets, list[EnvixEnvInjectionError]]:
+    secrets: Secrets = {}
     errors: list[EnvixEnvInjectionError] = []
-    for envname, envvar in envs.items.items():
+
+    for envname, secret in envs.items.items():
         if envs.overwrite or envname not in os.environ:
-            os.environ[envname] = envvar
-            envnames.append(envname)
+            os.environ[envname] = secret
+            secrets[envname] = SecretStr(secret)
 
-    return envnames, errors
+    return secrets, errors
 
 
-async def load_local_envs(
+async def load_local_envs_v1(
     envs: LocalEnvsV1,
-) -> tuple[list[str], list[EnvixEnvInjectionError]]:
-    envnames: list[str] = []
+) -> tuple[Secrets, list[EnvixEnvInjectionError]]:
+    secrets: Secrets = {}
     errors: list[EnvixEnvInjectionError] = []
+
     for envname, envvar in envs._items.items():
         if envvar not in os.environ:
             errors.append(EnvixEnvironmentNotSetting(envvar))
@@ -43,17 +48,17 @@ async def load_local_envs(
 
         if envs.overwrite or envname not in os.environ:
             os.environ[envname] = os.environ[envvar]
-            envnames.append(envname)
+            secrets[envname] = SecretStr(os.environ[envvar])
 
-    return envnames, errors
+    return secrets, errors
 
 
-async def load_google_cloud_secret_manager_envs(
+async def load_google_cloud_secret_manager_envs_v1(
     envs: GoogleCloudSecretManagerEnvsV1,
-) -> tuple[list[str], list[EnvixEnvInjectionError]]:
+) -> tuple[Secrets, list[EnvixEnvInjectionError]]:
     from google.cloud import secretmanager
 
-    envnames: list[str] = []
+    secrets: Secrets = {}
     errors: list[EnvixEnvInjectionError] = []
     client = secretmanager.SecretManagerServiceAsyncClient()
 
@@ -65,7 +70,7 @@ async def load_google_cloud_secret_manager_envs(
                 )
                 envvar = response.payload.data.decode("UTF-8")
                 os.environ[envname] = envvar
-                envnames.append(envname)
+                secrets[envname] = SecretStr(envvar)
 
             except Exception as e:
                 errors.append(EnvixGoogleCloudSecretManagerError(envname, e))
@@ -74,24 +79,24 @@ async def load_google_cloud_secret_manager_envs(
         *(
             access_secret_version(envname, secret_name)
             for envname, secret_name in envs.secret_items.items()
-        )
+        ),
     )
 
-    return envnames, errors
+    return secrets, errors
 
 
 async def load_envs_v1(
     envs: EnvsV1,
-) -> tuple[list[str], list[EnvixEnvInjectionError]]:
+) -> tuple[Secrets, list[EnvixEnvInjectionError]]:
     match envs:
         case RawEnvsV1():
-            return await load_raw_envs(envs)
+            return await load_raw_envs_v1(envs)
 
         case LocalEnvsV1():
-            return await load_local_envs(envs)
+            return await load_local_envs_v1(envs)
 
         case GoogleCloudSecretManagerEnvsV1():
-            return await load_google_cloud_secret_manager_envs(envs)
+            return await load_google_cloud_secret_manager_envs_v1(envs)
 
         case _:
             assert_never(envs)
@@ -99,18 +104,19 @@ async def load_envs_v1(
 
 async def load_envs(
     config: Config,
-) -> tuple[list[str], list[EnvixEnvInjectionError]]:
-    envnames: list[str] = []
-    errors: list[EnvixEnvInjectionError] = []
+) -> tuple[Secrets, list[EnvixEnvInjectionError]]:
+    total_secrets: Secrets = {}
+    total_errors: list[EnvixEnvInjectionError] = []
 
-    match config.root:
-        case ConfigV1() as config_:
-            for envs in config_.envs:
-                envnames_, errors_ = await load_envs_v1(envs)
-                envnames.extend(envnames_)
-                errors.extend(errors_)
+    config_root = config.root
+    match config_root:
+        case ConfigV1():
+            for envs in config_root.envs:
+                secrets, errors = await load_envs_v1(envs)
+                total_secrets.update(secrets)
+                total_errors.extend(errors)
 
         case _:
-            assert_never(config.root)
+            assert_never(config_root)
 
-    return envnames, errors
+    return total_secrets, total_errors
