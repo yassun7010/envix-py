@@ -1,9 +1,9 @@
 import asyncio
 import json
-import pipes
 from argparse import ArgumentParser, FileType, _SubParsersAction
 from io import TextIOWrapper
 from pathlib import Path
+from shlex import quote
 from typing import Annotated, Any, Literal, assert_never, cast, get_args
 
 from pydantic import BaseModel, ConfigDict
@@ -74,7 +74,7 @@ def export_command(args: Args) -> None:
         case "dotenv":
             print(
                 "\n".join(
-                    f"{envname}={pipes.quote(secret.get_secret_value())}"
+                    f"{envname}={quote(secret.get_secret_value())}"
                     for envname, secret in secrets.items()
                 ),
                 file=args.output_file,
