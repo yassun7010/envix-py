@@ -6,14 +6,15 @@
 ## Usage
 
 ```sh
-cat > envix.yaml <<EOF
-envix:
-  version: 1
+cat > envix.toml <<EOF
+[envix]
+version = 1
 
-envs:
-  - type: Raw
-    items:
-      MY_SECRET: '!!!secret!!!!'
+[[envs]]
+type = "Raw"
+[envs.items]
+MY_SECRET = '!!!secret!!!!'
+
 EOF
 
 envix inject --clear-environments -- env
