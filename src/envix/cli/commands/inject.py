@@ -1,3 +1,4 @@
+import os
 from argparse import ArgumentParser, _SubParsersAction
 from pathlib import Path
 from typing import Any, cast
@@ -9,6 +10,7 @@ class Args(BaseModel):
     command: str
     args: list[str]
     config_file: Path | None
+    clear_environment: bool
 
 
 def add_subparser(subparsers: "_SubParsersAction[Any]", **kwargs: Any) -> None:
@@ -39,6 +41,13 @@ def add_subparser(subparsers: "_SubParsersAction[Any]", **kwargs: Any) -> None:
         default=None,
     )
 
+    parser.add_argument(
+        "--clear-environment",
+        action="store_true",
+        help="Running commands with no environment variables set.",
+        default=False,
+    )
+
     parser.set_defaults(handler=lambda space: inject_command(Args(**vars(space))))
 
 
@@ -51,6 +60,9 @@ def inject_command(args: Args) -> None:
     from envix.loader import load_envs
 
     config = Config.load(args.config_file)
+
+    if args.clear_environment:
+        os.environ.clear()
 
     _, errors = asyncio.run(load_envs(config))
 
