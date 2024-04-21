@@ -10,14 +10,6 @@ from pydantic import BaseModel, ConfigDict
 
 from envix.cli.default import AUTO_SEARCH, STDOUT
 from envix.cli.field import ConfigFileValidator, OutputFileValidator
-from envix.config.config import Config
-from envix.exception import (
-    EnvixEnvInjectionError,
-    EnvixLoadEnvsError,
-)
-from envix.loader import load_envs
-from envix.path import get_user_config_path
-from envix.types import Secrets
 
 OutputFormat = Literal["dotenv", "json"]
 
@@ -81,20 +73,19 @@ def add_subparser(subparsers: "_SubParsersAction[Any]", **kwargs: Any) -> None:
 
 
 def export_command(args: Args) -> None:
+    from envix.config.config import load_configs
+    from envix.exception import (
+        EnvixEnvInjectionError,
+        EnvixLoadEnvsError,
+    )
+    from envix.loader import load_envs
+    from envix.types import Secrets
+
     total_secrets: Secrets = {}
     total_errors: list[EnvixEnvInjectionError] = []
 
-    config_paths = [
-        get_user_config_path(config_name) for config_name in args.config_name or []
-    ]
-    if not config_paths or args.config_file:
-        config_paths = [args.config_file] + config_paths
-
-    for config_path in config_paths:
-        config = Config.load(config_path)
+    for config in load_configs(args.config_file, args.config_name):
         secrets, errors = asyncio.run(load_envs(config))
-        if errors:
-            raise EnvixLoadEnvsError(errors)
 
         total_secrets.update(secrets)
         total_errors.extend(errors)

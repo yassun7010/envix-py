@@ -6,6 +6,7 @@ from typing import Self
 from pydantic import RootModel
 
 from envix.exception import EnvixConfigFileExtensionError, EnvixConfigFileNotFound
+from envix.path import get_user_config_path
 
 from .v1.config import ConfigV1
 
@@ -58,3 +59,17 @@ def _find_config_file() -> Path | None:
             if config_filepath.exists():
                 logger.debug(f"Found config file: {config_filepath}")
                 return config_filepath
+
+
+def load_configs(
+    config_file: Path | None, config_names: list[str] | None = None
+) -> list[Config]:
+    configs = [
+        Config.load(get_user_config_path(config_name))
+        for config_name in config_names or []
+    ]
+
+    if not configs or config_file:
+        configs = [Config.load(config_file)] + configs
+
+    return configs
