@@ -3,7 +3,7 @@ from typing import Any, cast
 
 from pydantic import BaseModel
 
-from . import config_schema
+from . import config_list, config_schema
 
 
 class Args(BaseModel):
@@ -28,6 +28,7 @@ def add_subparser(subparsers: "_SubParsersAction[Any]", **kwargs: Any) -> None:
         metavar="COMMAND",
     )
 
+    config_list.add_subparser(subparsers, formatter_class=parser.formatter_class)
     config_schema.add_subparser(subparsers, formatter_class=parser.formatter_class)
 
     parser.set_defaults(handler=lambda _: parser.print_help())

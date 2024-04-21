@@ -1,7 +1,6 @@
 import logging
 import sys
 from argparse import ArgumentParser, BooleanOptionalAction
-from logging import getLogger
 from typing import NoReturn
 
 from rich.console import Console as RichConsole
@@ -9,7 +8,8 @@ from rich.logging import RichHandler
 from rich_argparse import ArgumentDefaultsRichHelpFormatter
 
 import envix
-from envix.cli.commands import config, export, inject
+
+from .commands import config, export, inject
 
 logger = logging.getLogger(__name__)
 
@@ -41,8 +41,6 @@ class App:
                 ],
             )
             logging.root.setLevel(logging.DEBUG if verbose else logging.INFO)
-            for mod in ("google", "snowflake"):
-                getLogger(mod).setLevel(logging.DEBUG if verbose else logging.WARNING)
 
             formatter_class = ArgumentDefaultsRichHelpFormatter
             formatter_class.styles["argparse.default"] = "dark_orange"
@@ -71,8 +69,8 @@ class App:
             )
 
             inject.add_subparser(subparser, formatter_class=parser.formatter_class)
-            config.add_subparser(subparser, formatter_class=parser.formatter_class)
             export.add_subparser(subparser, formatter_class=parser.formatter_class)
+            config.add_subparser(subparser, formatter_class=parser.formatter_class)
 
             parser.set_defaults(handler=lambda _: parser.print_help())
 
