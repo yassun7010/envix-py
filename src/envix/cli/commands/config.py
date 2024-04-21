@@ -3,6 +3,8 @@ from typing import Any, cast
 
 from pydantic import BaseModel
 
+from envix.cli.commands import config_edit
+
 from . import config_list, config_schema
 
 
@@ -29,6 +31,7 @@ def add_subparser(subparsers: "_SubParsersAction[Any]", **kwargs: Any) -> None:
     )
 
     config_list.add_subparser(subparsers, formatter_class=parser.formatter_class)
+    config_edit.add_subparser(subparsers, formatter_class=parser.formatter_class)
     config_schema.add_subparser(subparsers, formatter_class=parser.formatter_class)
 
     parser.set_defaults(handler=lambda _: parser.print_help())

@@ -1,18 +1,25 @@
 import os
 from pathlib import Path
 
+from envix.envname import ENVIX_CONFIG_DIR
+from envix.exception import EnvixConfigFileExtensionError
 
-def get_config(name: str) -> Path:
-    return get_user_config_dir().joinpath("config", "envix_{name}.yml")
+
+def get_user_config_path(name: str, *, exist_ok=False) -> Path:
+    config_path = get_registerd_config_dir().joinpath(f"envix_{name}.yml")
+    if not config_path.exists() and not exist_ok:
+        raise EnvixConfigFileExtensionError(config_path)
+
+    return config_path
 
 
-def list_config() -> list[Path]:
-    return list(get_user_config_dir().joinpath("config").glob("envix_*.yml"))
+def list_user_config() -> list[Path]:
+    return list(get_registerd_config_dir().glob("envix_*.yml"))
 
 
 def get_user_config_dir() -> Path:
     config_dir: Path
-    if path := os.getenv("ENVIX_CONFIG_DIR"):
+    if path := os.getenv(ENVIX_CONFIG_DIR):
         config_dir = Path(path)
 
     elif path := os.getenv("XDG_CONFIG_HOME"):
@@ -21,7 +28,16 @@ def get_user_config_dir() -> Path:
     else:
         config_dir = Path.home().joinpath(".config/envix")
 
-    if not config_dir.joinpath("config").exists():
+    if not config_dir.exists():
         config_dir.mkdir(parents=True, exist_ok=True)
 
     return config_dir
+
+
+def get_registerd_config_dir() -> Path:
+    registerd_config_dir = get_user_config_dir().joinpath("registered")
+
+    if not registerd_config_dir.exists():
+        registerd_config_dir.mkdir(parents=True, exist_ok=True)
+
+    return registerd_config_dir

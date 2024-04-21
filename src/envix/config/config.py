@@ -20,7 +20,7 @@ class Config(RootModel):
         import tomllib
 
         if not (filepath := filepath or _find_config_file()):
-            raise EnvixConfigFileNotFound(Path(os.getcwd()))
+            raise EnvixConfigFileNotFound(Path(os.getcwd()).joinpath("envix.yml"))
 
         if not filepath.exists():
             raise EnvixConfigFileNotFound(filepath)
@@ -53,7 +53,7 @@ def _find_config_file() -> Path | None:
     cwd = Path(os.getcwd())
 
     for directory in (cwd, *cwd.parents):
-        for filename in ("envix.toml", "envix.yaml", "envix.yml", "envix.json"):
+        for filename in ("envix.yml", "envix.yaml", "envix.toml", "envix.json"):
             config_filepath = directory / filename
             if config_filepath.exists():
                 logger.debug(f"Found config file: {config_filepath}")
