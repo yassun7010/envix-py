@@ -39,6 +39,7 @@ def add_subparser(subparsers: "_SubParsersAction[Any]", **kwargs: Any) -> None:
     )
 
     parser.add_argument(
+        "--file",
         "--config-file",
         metavar="CONFIG_FILE",
         help="config file path.",
