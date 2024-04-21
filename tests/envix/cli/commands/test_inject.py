@@ -3,6 +3,7 @@ from textwrap import dedent
 
 import pytest
 from envix.cli.app import App
+from envix.exception import EnvixConfigFileNotFound
 
 from tests.config_builder import ConfigV1Builder
 
@@ -18,7 +19,6 @@ class TestCliAppInjectCommand:
         capfd: pytest.CaptureFixture[str],
     ):
         os.environ.clear()
-
         with (
             config_v1_builder.chain()
             .add_envs("FOO", "1234567890")
@@ -73,3 +73,10 @@ class TestCliAppInjectCommand:
         ) is ok
 
         assert err == ""
+
+    def test_config_name(self):
+        App.run(["inject", "--config-name", "sample", "--", "env"])
+
+    def test_config_name_not_exists(self):
+        with pytest.raises(EnvixConfigFileNotFound):
+            App.run(["inject", "--config-name", "not_exists", "--", "env"])

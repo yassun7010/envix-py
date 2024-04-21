@@ -2,13 +2,13 @@ import os
 from pathlib import Path
 
 from envix.envname import ENVIX_CONFIG_DIR
-from envix.exception import EnvixConfigFileExtensionError
+from envix.exception import EnvixConfigFileNotFound
 
 
 def get_user_config_path(name: str, *, exist_ok=False) -> Path:
     config_path = get_registerd_config_dir().joinpath(f"envix_{name}.yml")
     if not config_path.exists() and not exist_ok:
-        raise EnvixConfigFileExtensionError(config_path)
+        raise EnvixConfigFileNotFound(config_path)
 
     return config_path
 
