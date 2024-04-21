@@ -45,21 +45,21 @@ def add_subparser(subparsers: "_SubParsersAction[Any]", **kwargs: Any) -> None:
     )
 
     parser.add_argument(
-        "--config-name",
-        "--config",
-        metavar="CONFIG_NAME",
-        help="user registered setting name.",
-        type=str,
-        nargs="*",
-    )
-
-    parser.add_argument(
         "--config-file",
         "--file",
         metavar="CONFIG_FILE",
         help="config file path.",
         type=Path,
         default=AUTO_SEARCH,
+    )
+
+    parser.add_argument(
+        "--config-name",
+        "--config",
+        metavar="CONFIG_NAME",
+        help="user registered setting name.",
+        type=str,
+        nargs="*",
     )
 
     parser.add_argument(
