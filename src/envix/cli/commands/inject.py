@@ -14,6 +14,7 @@ class Args(BaseModel):
     config_file: Annotated[Path | None, ConfigFileValidator]
     config_name: list[str] | None
     clear_environments: bool
+    dotenv: list[Path] | None
 
 
 def add_subparser(subparsers: "_SubParsersAction[Any]", **kwargs: Any) -> None:
@@ -61,12 +62,23 @@ def add_subparser(subparsers: "_SubParsersAction[Any]", **kwargs: Any) -> None:
         default=False,
     )
 
+    parser.add_argument(
+        "--dotenv",
+        metavar="DOTENV",
+        help="Path to the .env file.",
+        type=Path,
+        default=None,
+        nargs="*",
+    )
+
     parser.set_defaults(handler=lambda space: inject_command(Args(**vars(space))))
 
 
 def inject_command(args: Args) -> None:
     import asyncio
     import subprocess
+
+    from dotenv import load_dotenv
 
     from envix.config.config import load_configs
     from envix.exception import EnvixEnvInjectionError, EnvixLoadEnvsError
@@ -81,6 +93,12 @@ def inject_command(args: Args) -> None:
         _, errors = asyncio.run(load_envs(config))
 
         total_errors.extend(errors)
+
+    if args.dotenv == []:
+        args.dotenv = [Path(".env")]
+
+    for dotenv in args.dotenv or []:
+        load_dotenv(dotenv, override=True)
 
     if total_errors:
         raise EnvixLoadEnvsError(total_errors)

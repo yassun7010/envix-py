@@ -60,3 +60,29 @@ class TestCliAppExportCommand:
     def test_config_name_not_exists(self):
         with pytest.raises(EnvixConfigFileNotFound):
             App.run(["export", "--config-name", "not_exists"])
+
+    def test_export_command_with_config_and_dotenv(
+        self,
+        config_v1_builder: ConfigV1Builder,
+        capsys: pytest.CaptureFixture[str],
+    ):
+        with (
+            config_v1_builder.chain()
+            .add_envs("FOO", "1234567890")
+            .add_envs("BAR", "abcdefghijklmn")
+            .build_file()
+        ) as config_file:
+            App.run(["export", "--config-file", config_file.name, "--dotenv"])
+
+        out, err = capsys.readouterr()
+        assert (
+            out
+            == dedent(
+                """
+                FOO=1234567890
+                BAR=abcdefghijklmn
+                HELLO=WORLD
+                """
+            ).lstrip()
+        )
+        assert err == ""
