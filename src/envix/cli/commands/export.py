@@ -6,7 +6,7 @@ from pathlib import Path
 from shlex import quote
 from typing import Annotated, Any, Literal, assert_never, cast, get_args
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, SecretStr
 
 from envix.cli.default import AUTO_SEARCH, STDOUT
 from envix.cli.field import ConfigFileValidator, OutputFileValidator
@@ -21,6 +21,7 @@ class Args(BaseModel):
     config_name: list[str] | None
     output_file: Annotated[TextIOWrapper | None, OutputFileValidator]
     format: OutputFormat
+    dotenv: list[Path] | None
 
 
 def add_subparser(subparsers: "_SubParsersAction[Any]", **kwargs: Any) -> None:
@@ -69,10 +70,21 @@ def add_subparser(subparsers: "_SubParsersAction[Any]", **kwargs: Any) -> None:
         default="dotenv",
     )
 
+    parser.add_argument(
+        "--dotenv",
+        metavar="DOTENV",
+        help="Path to the .env file.",
+        type=Path,
+        default=None,
+        nargs="*",
+    )
+
     parser.set_defaults(handler=lambda space: export_command(Args(**vars(space))))
 
 
 def export_command(args: Args) -> None:
+    from dotenv.main import DotEnv
+
     from envix.config.config import load_configs
     from envix.exception import (
         EnvixEnvInjectionError,
@@ -89,6 +101,14 @@ def export_command(args: Args) -> None:
 
         total_secrets.update(secrets)
         total_errors.extend(errors)
+
+    if args.dotenv == []:
+        args.dotenv = [Path(".env")]
+
+    for dotenv in args.dotenv or []:
+        for key, value in DotEnv(dotenv, override=True).dict().items():
+            if value:
+                total_secrets[key] = SecretStr(value)
 
     if total_errors:
         raise EnvixLoadEnvsError(total_errors)

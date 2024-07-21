@@ -80,3 +80,32 @@ class TestCliAppInjectCommand:
     def test_config_name_not_exists(self):
         with pytest.raises(EnvixConfigFileNotFound):
             App.run(["inject", "--config-name", "not_exists", "--", "env"])
+
+    def test_inject_command_with_config_and_dotenv(
+        self,
+        config_v1_builder: ConfigV1Builder,
+        capfd: pytest.CaptureFixture[str],
+    ):
+        os.environ.clear()
+        with (
+            config_v1_builder.chain()
+            .add_envs("FOO", "1234567890")
+            .add_envs("BAR", "abcdefghijklmn")
+            .build_file()
+        ) as config_file:
+            App.run(
+                ["inject", "--config-file", config_file.name, "--dotenv", "--", "env"]
+            )
+
+        out, err = capfd.readouterr()
+        assert (
+            out
+            == dedent(
+                """
+                FOO=1234567890
+                BAR=abcdefghijklmn
+                HELLO=WORLD
+                """
+            ).lstrip()
+        )
+        assert err == ""
