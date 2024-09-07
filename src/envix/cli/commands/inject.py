@@ -80,19 +80,16 @@ def inject_command(args: Args) -> None:
 
     from dotenv import load_dotenv
 
-    from envix.config.config import load_configs
-    from envix.exception import EnvixEnvInjectionError, EnvixLoadEnvsError
-    from envix.loader import load_envs
-
-    total_errors: list[EnvixEnvInjectionError] = []
+    from envix.config.config import collect_config_filepaths
+    from envix.exception import EnvixLoadEnvsError
+    from envix.loader import load_secrets
 
     if args.clear_environments:
         os.environ.clear()
 
-    for config in load_configs(args.config_file, args.config_name):
-        _, errors = asyncio.run(load_envs(config))
-
-        total_errors.extend(errors)
+    _, errors = asyncio.run(
+        load_secrets(collect_config_filepaths(args.config_file, args.config_name))
+    )
 
     if args.dotenv == []:
         args.dotenv = [Path(".env")]
@@ -100,7 +97,7 @@ def inject_command(args: Args) -> None:
     for dotenv in args.dotenv or []:
         load_dotenv(dotenv, override=True)
 
-    if total_errors:
-        raise EnvixLoadEnvsError(total_errors)
+    if errors:
+        raise EnvixLoadEnvsError(errors)
 
     subprocess.call([args.command] + args.args)

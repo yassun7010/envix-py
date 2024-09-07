@@ -15,14 +15,14 @@ class TestCliAppInjectCommand:
 
     def test_inject_command_with_config(
         self,
-        config_v1_builder: ConfigV1Builder,
+        config_builder: ConfigV1Builder,
         capfd: pytest.CaptureFixture[str],
     ):
         os.environ.clear()
         with (
-            config_v1_builder.chain()
-            .add_envs("FOO", "1234567890")
-            .add_envs("BAR", "abcdefghijklmn")
+            config_builder.chain()
+            .add_env("FOO", "1234567890")
+            .add_env("BAR", "abcdefghijklmn")
             .build_file()
         ) as config_file:
             App.run(["inject", "--config-file", config_file.name, "env"])
@@ -48,15 +48,15 @@ class TestCliAppInjectCommand:
     )
     def test_clear_environments(
         self,
-        config_v1_builder: ConfigV1Builder,
+        config_builder: ConfigV1Builder,
         capfd: pytest.CaptureFixture[str],
         options: list[str],
         ok: bool,
     ):
         with (
-            config_v1_builder.chain()
-            .add_envs("FOO", "1234567890")
-            .add_envs("BAR", "abcdefghijklmn")
+            config_builder.chain()
+            .add_env("FOO", "1234567890")
+            .add_env("BAR", "abcdefghijklmn")
             .build_file()
         ) as config_file:
             App.run(["inject", "--config-file", config_file.name, *options, "env"])
@@ -83,14 +83,14 @@ class TestCliAppInjectCommand:
 
     def test_inject_command_with_config_and_dotenv(
         self,
-        config_v1_builder: ConfigV1Builder,
+        config_builder: ConfigV1Builder,
         capfd: pytest.CaptureFixture[str],
     ):
         os.environ.clear()
         with (
-            config_v1_builder.chain()
-            .add_envs("FOO", "1234567890")
-            .add_envs("BAR", "abcdefghijklmn")
+            config_builder.chain()
+            .add_env("FOO", "1234567890")
+            .add_env("BAR", "abcdefghijklmn")
             .build_file()
         ) as config_file:
             App.run(

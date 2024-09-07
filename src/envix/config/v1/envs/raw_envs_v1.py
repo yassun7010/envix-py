@@ -8,6 +8,10 @@ from ._common import OverwriteType
 
 
 class RawEnvsV1(BaseModel):
+    """
+    Raw environment variables directly specified in the configuration.
+    """
+
     model_config = ConfigDict(extra="forbid")
 
     type: Annotated[

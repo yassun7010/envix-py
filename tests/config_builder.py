@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Self, cast
 
@@ -12,7 +13,11 @@ class ConfigV1Builder:
         self.config = ConfigV1(envix=EnvixV1(version=1), envs=[])
         self._raw_envs_index: int | None = None
 
-    def add_envs(self, envname: str, secret: str) -> Self:
+    def add_include(self, path: Path | str) -> Self:
+        self.config.includes.append(Path(path))
+        return self
+
+    def add_env(self, envname: str, secret: str) -> Self:
         if not self._raw_envs_index:
             self._raw_envs_index = len(self.config.envs)
             self.config.envs.append(RawEnvsV1(type="Raw", items={}))

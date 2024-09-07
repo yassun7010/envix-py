@@ -13,6 +13,10 @@ class GoogleCloudSecretManagerSecret(BaseModel):
 
 
 class GoogleCloudSecretManagerEnvsV1(BaseModel):
+    """
+    Google Cloud Secret Manager environment variables.
+    """
+
     model_config = ConfigDict(extra="forbid")
 
     type: Annotated[
