@@ -4,9 +4,24 @@
       "additionalProperties": false,
       "properties": {
         "envix": {
-          "$ref": "#/$defs/EnvixV1"
+          "allOf": [
+            {
+              "$ref": "#/$defs/EnvixV1"
+            }
+          ],
+          "description": "Envix settings"
+        },
+        "includes": {
+          "description": "List of envix config paths to include",
+          "items": {
+            "format": "path",
+            "type": "string"
+          },
+          "title": "Includes",
+          "type": "array"
         },
         "envs": {
+          "description": "List of environment variables settings",
           "items": {
             "anyOf": [
               {
@@ -25,8 +40,7 @@
         }
       },
       "required": [
-        "envix",
-        "envs"
+        "envix"
       ],
       "title": "ConfigV1",
       "type": "object"
@@ -36,7 +50,11 @@
       "properties": {
         "version": {
           "const": 1,
-          "title": "envix version."
+          "enum": [
+            1
+          ],
+          "title": "envix version.",
+          "type": "integer"
         }
       },
       "required": [
@@ -47,10 +65,15 @@
     },
     "GoogleCloudSecretManagerEnvsV1": {
       "additionalProperties": false,
+      "description": "Google Cloud Secret Manager environment variables.",
       "properties": {
         "type": {
           "const": "GoogleCloudSecretManager",
-          "title": "Google Cloud Secret Manager environment variables."
+          "enum": [
+            "GoogleCloudSecretManager"
+          ],
+          "title": "Google Cloud Secret Manager environment variables.",
+          "type": "string"
         },
         "project_id": {
           "title": "Google Cloud Platform project ID.",
@@ -105,7 +128,11 @@
               "type": "integer"
             },
             {
-              "const": "latest"
+              "const": "latest",
+              "enum": [
+                "latest"
+              ],
+              "type": "string"
             }
           ],
           "default": "latest",
@@ -120,11 +147,16 @@
     },
     "LocalEnvsV1": {
       "additionalProperties": false,
+      "description": "Local environment variables to be read from the machine's user environments.",
       "properties": {
         "type": {
           "const": "Local",
           "description": "Environment variables to be read from the local machine user environments.",
-          "title": "Local environment variables."
+          "enum": [
+            "Local"
+          ],
+          "title": "Local environment variables.",
+          "type": "string"
         },
         "items": {
           "anyOf": [
@@ -163,11 +195,16 @@
     },
     "RawEnvsV1": {
       "additionalProperties": false,
+      "description": "Raw environment variables directly specified in the configuration.",
       "properties": {
         "type": {
           "const": "Raw",
           "description": "Environment variable settings to be written directly in the configuration file.",
-          "title": "Raw environment variables."
+          "enum": [
+            "Raw"
+          ],
+          "title": "Raw environment variables.",
+          "type": "string"
         },
         "items": {
           "description": "A dictionary of environment variable names and values to be written directly.",

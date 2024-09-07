@@ -8,6 +8,10 @@ from ._common import OverwriteType
 
 
 class LocalEnvsV1(BaseModel):
+    """
+    Local environment variables to be read from the machine's user environments.
+    """
+
     model_config = ConfigDict(extra="forbid")
 
     type: Annotated[

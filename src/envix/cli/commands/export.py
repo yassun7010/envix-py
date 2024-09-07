@@ -85,22 +85,15 @@ def add_subparser(subparsers: "_SubParsersAction[Any]", **kwargs: Any) -> None:
 def export_command(args: Args) -> None:
     from dotenv.main import DotEnv
 
-    from envix.config.config import load_configs
+    from envix.config.config import collect_config_filepaths
     from envix.exception import (
-        EnvixEnvInjectionError,
         EnvixLoadEnvsError,
     )
-    from envix.loader import load_envs
-    from envix.types import Secrets
+    from envix.loader import load_secrets
 
-    total_secrets: Secrets = {}
-    total_errors: list[EnvixEnvInjectionError] = []
-
-    for config in load_configs(args.config_file, args.config_name):
-        secrets, errors = asyncio.run(load_envs(config))
-
-        total_secrets.update(secrets)
-        total_errors.extend(errors)
+    secrets, errors = asyncio.run(
+        load_secrets(collect_config_filepaths(args.config_file, args.config_name))
+    )
 
     if args.dotenv == []:
         args.dotenv = [Path(".env")]
@@ -108,17 +101,17 @@ def export_command(args: Args) -> None:
     for dotenv in args.dotenv or []:
         for key, value in DotEnv(dotenv, override=True).dict().items():
             if value:
-                total_secrets[key] = SecretStr(value)
+                secrets[key] = SecretStr(value)
 
-    if total_errors:
-        raise EnvixLoadEnvsError(total_errors)
+    if errors:
+        raise EnvixLoadEnvsError(errors)
 
     match args.format:
         case "dotenv":
             print(
                 "\n".join(
                     f"{envname}={quote(secret.get_secret_value())}"
-                    for envname, secret in total_secrets.items()
+                    for envname, secret in secrets.items()
                 ),
                 file=args.output_file,
             )
@@ -128,7 +121,7 @@ def export_command(args: Args) -> None:
                 json.dumps(
                     {
                         envname: secret.get_secret_value()
-                        for envname, secret in total_secrets.items()
+                        for envname, secret in secrets.items()
                     }
                 ),
                 file=args.output_file,

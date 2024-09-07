@@ -82,9 +82,7 @@ async def load_google_cloud_secret_manager_envs_v1(
     return secrets, errors
 
 
-async def load_envs_v1(
-    envs: EnvsV1,
-) -> tuple[Secrets, list[EnvixEnvInjectionError]]:
+async def load_envs_v1(envs: EnvsV1) -> tuple[Secrets, list[EnvixEnvInjectionError]]:
     match envs:
         case RawEnvsV1():
             return await load_raw_envs_v1(envs)

@@ -61,15 +61,18 @@ def _find_config_file() -> Path | None:
                 return config_filepath
 
 
-def load_configs(
-    config_file: Path | None, config_names: list[str] | None = None
-) -> list[Config]:
-    configs = [
-        Config.load(get_user_config_path(config_name))
-        for config_name in config_names or []
+def collect_config_filepaths(
+    config_filepath: Path | None, config_names: list[str] | None = None
+) -> list[Path]:
+    config_filepaths = [
+        get_user_config_path(config_name) for config_name in config_names or []
     ]
 
-    if not configs or config_file:
-        configs = [Config.load(config_file)] + configs
+    if config_filepath:
+        config_filepaths = [config_filepath] + config_filepaths
 
-    return configs
+    if not config_filepaths:
+        if config_path := _find_config_file():
+            config_filepaths.append(config_path)
+
+    return config_filepaths

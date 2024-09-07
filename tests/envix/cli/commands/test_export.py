@@ -14,13 +14,13 @@ class TestCliAppExportCommand:
 
     def test_export_command_with_config(
         self,
-        config_v1_builder: ConfigV1Builder,
+        config_builder: ConfigV1Builder,
         capsys: pytest.CaptureFixture[str],
     ):
         with (
-            config_v1_builder.chain()
-            .add_envs("FOO", "1234567890")
-            .add_envs("BAR", "abcdefghijklmn")
+            config_builder.chain()
+            .add_env("FOO", "1234567890")
+            .add_env("BAR", "abcdefghijklmn")
             .build_file()
         ) as config_file:
             App.run(["export", "--config-file", config_file.name])
@@ -39,13 +39,13 @@ class TestCliAppExportCommand:
 
     def test_format_options(
         self,
-        config_v1_builder: ConfigV1Builder,
+        config_builder: ConfigV1Builder,
         capsys: pytest.CaptureFixture[str],
     ):
         with (
-            config_v1_builder.chain()
-            .add_envs("FOO", "1234567890")
-            .add_envs("BAR", "abcdefghijklmn")
+            config_builder.chain()
+            .add_env("FOO", "1234567890")
+            .add_env("BAR", "abcdefghijklmn")
             .build_file()
         ) as config_file:
             App.run(["export", "--config-file", config_file.name, "--format", "json"])
@@ -63,13 +63,13 @@ class TestCliAppExportCommand:
 
     def test_export_command_with_config_and_dotenv(
         self,
-        config_v1_builder: ConfigV1Builder,
+        config_builder: ConfigV1Builder,
         capsys: pytest.CaptureFixture[str],
     ):
         with (
-            config_v1_builder.chain()
-            .add_envs("FOO", "1234567890")
-            .add_envs("BAR", "abcdefghijklmn")
+            config_builder.chain()
+            .add_env("FOO", "1234567890")
+            .add_env("BAR", "abcdefghijklmn")
             .build_file()
         ) as config_file:
             App.run(["export", "--config-file", config_file.name, "--dotenv"])
