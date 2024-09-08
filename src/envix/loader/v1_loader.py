@@ -1,6 +1,6 @@
 import asyncio
 import os
-from typing import assert_never
+from typing import TYPE_CHECKING, assert_never
 
 from pydantic import SecretStr
 
@@ -16,6 +16,9 @@ from envix.exception import (
     EnvixGoogleCloudSecretManagerError,
 )
 from envix.types import Secrets
+
+if TYPE_CHECKING:
+    from google.cloud import secretmanager
 
 
 async def load_raw_envs_v1(
@@ -52,12 +55,14 @@ async def load_local_envs_v1(
 
 async def load_google_cloud_secret_manager_envs_v1(
     envs: GoogleCloudSecretManagerEnvsV1,
+    *,
+    client: "secretmanager.SecretManagerServiceAsyncClient | None" = None,
 ) -> tuple[Secrets, list[EnvixEnvInjectionError]]:
     from google.cloud import secretmanager
 
     secrets: Secrets = {}
     errors: list[EnvixEnvInjectionError] = []
-    client = secretmanager.SecretManagerServiceAsyncClient()
+    client = client or secretmanager.SecretManagerServiceAsyncClient()
 
     async def access_secret_version(envname: str, secret_name: str):
         if envs.overwrite or envname not in os.environ:
@@ -82,7 +87,10 @@ async def load_google_cloud_secret_manager_envs_v1(
     return secrets, errors
 
 
-async def load_envs_v1(envs: EnvsV1) -> tuple[Secrets, list[EnvixEnvInjectionError]]:
+async def load_envs_v1(
+    envs: EnvsV1,
+    google_cloud_secret_manager_client: "secretmanager.SecretManagerServiceAsyncClient | None" = None,
+) -> tuple[Secrets, list[EnvixEnvInjectionError]]:
     match envs:
         case RawEnvsV1():
             return await load_raw_envs_v1(envs)
@@ -91,7 +99,9 @@ async def load_envs_v1(envs: EnvsV1) -> tuple[Secrets, list[EnvixEnvInjectionErr
             return await load_local_envs_v1(envs)
 
         case GoogleCloudSecretManagerEnvsV1():
-            return await load_google_cloud_secret_manager_envs_v1(envs)
+            return await load_google_cloud_secret_manager_envs_v1(
+                envs, client=google_cloud_secret_manager_client
+            )
 
         case _:
             assert_never(envs)
