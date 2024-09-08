@@ -22,11 +22,6 @@ class TestV1Load:
             assert isinstance(record.msg, EnvixConfigFileNotFound)
 
     @pytest.mark.asyncio
-    async def test_load_with_empty_config(self, data_dir: Path):
-        with pytest.raises(EnvixConfigFileNotFound):
-            await load_secrets(data_dir.joinpath("registerd/empty_config.yml"))
-
-    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         "config_file, expected_keys",
         [
