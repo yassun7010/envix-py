@@ -42,7 +42,7 @@ async def _load_secrets(
     return await collect_secrets(Config.load(config_filepath), config_filepath)
 
 
-async def collect_secrets(config: Config, config_filepath: Path | None = None):
+async def collect_secrets(config: Config, config_filepath: Path | None):
     total_secrets: Secrets = {}
     total_errors: list[EnvixEnvInjectionError] = []
 

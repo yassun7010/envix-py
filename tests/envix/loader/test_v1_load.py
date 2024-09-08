@@ -17,28 +17,34 @@ class TestV1Load:
     ):
         config = Config(config_builder.add_include("not_exists.yml").build())
 
-        await collect_secrets(config)
+        await collect_secrets(config, None)
         for record in caplog.records:
             assert isinstance(record.msg, EnvixConfigFileNotFound)
 
     @pytest.mark.asyncio
-    async def test_load_sample(self, data_dir: Path):
-        secrets, errors = await load_secrets(
-            data_dir.joinpath("registered/envix_sample.yml")
-        )
-
-        assert not errors
-        assert list(secrets.keys()) == ["SNOWFLAKE_ACCOUNT"]
+    async def test_load_with_empty_config(self, data_dir: Path):
+        with pytest.raises(EnvixConfigFileNotFound):
+            await load_secrets(data_dir.joinpath("registerd/empty_config.yml"))
 
     @pytest.mark.asyncio
-    async def test_load_includes_sample(
+    @pytest.mark.parametrize(
+        "config_file, expected_keys",
+        [
+            ("registered/envix_sample.yml", ["SNOWFLAKE_ACCOUNT"]),
+            (
+                "registered/envix_includes_sample.yml",
+                ["SNOWFLAKE_ACCOUNT", "POSTGRES_ACCOUNT"],
+            ),
+        ],
+    )
+    async def test_load_configs(
         self,
         data_dir: Path,
+        config_file: str,
+        expected_keys: list,
         caplog: pytest.LogCaptureFixture,
     ):
-        config_filepath = data_dir.joinpath("registered/envix_includes_sample.yml")
-        secrets, errors = await load_secrets(config_filepath)
-
+        secrets, errors = await load_secrets(data_dir.joinpath(config_file))
         assert not errors
         assert not caplog.records
-        assert list(secrets.keys()) == ["SNOWFLAKE_ACCOUNT", "POSTGRES_ACCOUNT"]
+        assert list(secrets.keys()) == expected_keys
