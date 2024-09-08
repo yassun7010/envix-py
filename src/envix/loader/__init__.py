@@ -10,6 +10,7 @@ from envix.config.config import Config
 from envix.config.v1.config import ConfigV1
 from envix.exception import (
     EnvixConfigFileNotFound,
+    EnvixConfigFileParseError,
     EnvixEnvInjectionError,
 )
 from envix.loader.v1_loader import load_envs_v1
@@ -60,10 +61,10 @@ async def collect_secrets(config: Config, config_filepath: Path | None):
                         secrets, errors = await load_secrets(include_path)
                         total_secrets.update(secrets)
                         total_errors.extend(errors)
-                    except ValidationError as e:
-                        logger.warning(e)
+                    except ValidationError:
+                        total_errors.append(EnvixConfigFileParseError(include_path))
                 else:
-                    logger.warning(EnvixConfigFileNotFound(include_path))
+                    total_errors.append(EnvixConfigFileNotFound(include_path))
 
             for envs in config_root.envs:
                 secrets, errors = await load_envs_v1(envs)

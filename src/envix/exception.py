@@ -29,20 +29,11 @@ class EnvixLoadEnvsError(EnvixError):
         return "\n".join(map(str, self.errors))
 
 
-class EnvixConfigFileNotFound(EnvixError, FileNotFoundError):
-    def __init__(self, filename: Path):
-        self.filename = filename
-
-    @property
-    def message(self) -> str:
-        return f"Config file not found: {self.filename}"
-
-
 class EnvixEnvInjectionError(EnvixError, ValueError):
     pass
 
 
-class EnvixEnvironmentNotSetting(EnvixEnvInjectionError):
+class EnvixEnvironmentNotSetting(EnvixEnvInjectionError, ValueError):
     def __init__(self, envname: str):
         self.envname = envname
 
@@ -59,3 +50,21 @@ class EnvixGoogleCloudSecretManagerError(EnvixEnvInjectionError):
     @property
     def message(self) -> str:
         return f"Google Cloud Secret Manager error: {self.envname}, {self.error}"
+
+
+class EnvixConfigFileNotFound(EnvixEnvInjectionError, FileNotFoundError):
+    def __init__(self, filename: Path):
+        self.filename = filename
+
+    @property
+    def message(self) -> str:
+        return f"Config file not found: {self.filename}"
+
+
+class EnvixConfigFileParseError(EnvixEnvInjectionError, ValueError):
+    def __init__(self, filename: Path):
+        self.filename = filename
+
+    @property
+    def message(self) -> str:
+        return f'Config file parse error: "{self.filename.absolute()}"'
