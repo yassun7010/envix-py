@@ -2,7 +2,6 @@ import asyncio
 import os
 from pathlib import Path
 from typing import assert_never
-from venv import logger
 
 from pydantic import ValidationError
 
