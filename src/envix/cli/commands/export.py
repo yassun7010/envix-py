@@ -11,7 +11,11 @@ from pydantic import BaseModel, ConfigDict, SecretStr
 from envix.cli.default import AUTO_SEARCH, STDOUT
 from envix.cli.field import ConfigFileValidator, OutputFileValidator
 
-OutputFormat = Literal["dotenv", "json", "export-posix-shell"]
+OutputFormat = Literal[
+    "dotenv",
+    "json",
+    "export-posix-shell",
+]
 
 
 class Args(BaseModel):
