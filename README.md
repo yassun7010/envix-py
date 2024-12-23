@@ -21,5 +21,9 @@ MY_SECRET = '!!!secret!!!!'
 
 EOF
 
+# Inject secrets to env
 envix inject --clear-environments -- env
+
+# export envs
+export $(envix export | xargs)
 ```

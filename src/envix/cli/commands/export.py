@@ -14,8 +14,6 @@ from envix.cli.field import ConfigFileValidator, OutputFileValidator
 OutputFormat = Literal[
     "dotenv",
     "json",
-    "export",
-    "export-posix-shell",
 ]
 
 
@@ -128,15 +126,6 @@ def export_command(args: Args) -> None:
                         envname: secret.get_secret_value()
                         for envname, secret in secrets.items()
                     }
-                ),
-                file=args.output_file,
-            )
-
-        case "export" | "export-posix-shell":
-            print(
-                "\n".join(
-                    f'export {envname}="{quote(secret.get_secret_value())}"'
-                    for envname, secret in secrets.items()
                 ),
                 file=args.output_file,
             )
