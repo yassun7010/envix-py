@@ -6,7 +6,14 @@ from envix.exception import EnvixConfigFileNotFound
 
 
 def get_user_config_path(name: str, *, exist_ok=False) -> Path:
-    config_path = get_registerd_config_dir().joinpath(f"envix_{name}.yml")
+    registerd_config_dir = get_registerd_config_dir()
+
+    old_config_path = registerd_config_dir.joinpath(f"envix_{name}.yml")
+    config_path = registerd_config_dir.joinpath(f"{name}.yml")
+
+    if old_config_path.exists():
+        return old_config_path
+
     if not config_path.exists() and not exist_ok:
         raise EnvixConfigFileNotFound(config_path)
 
@@ -14,7 +21,7 @@ def get_user_config_path(name: str, *, exist_ok=False) -> Path:
 
 
 def list_user_config() -> list[Path]:
-    return list(get_registerd_config_dir().glob("envix_*.yml"))
+    return list(get_registerd_config_dir().glob("*.yml"))
 
 
 def get_user_config_dir() -> Path:
