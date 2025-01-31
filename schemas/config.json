@@ -4,11 +4,7 @@
       "additionalProperties": false,
       "properties": {
         "envix": {
-          "allOf": [
-            {
-              "$ref": "#/$defs/EnvixV1"
-            }
-          ],
+          "$ref": "#/$defs/EnvixV1",
           "description": "Envix settings"
         },
         "includes": {
@@ -26,6 +22,9 @@
             "anyOf": [
               {
                 "$ref": "#/$defs/RawEnvsV1"
+              },
+              {
+                "$ref": "#/$defs/FileEnvsV1"
               },
               {
                 "$ref": "#/$defs/LocalEnvsV1"
@@ -61,6 +60,44 @@
         "version"
       ],
       "title": "EnvixV1",
+      "type": "object"
+    },
+    "FileEnvsV1": {
+      "additionalProperties": false,
+      "description": "Environment variables read from a file.",
+      "properties": {
+        "type": {
+          "const": "File",
+          "description": "Environment variable settings to be read from a file.",
+          "enum": [
+            "File"
+          ],
+          "title": "File environment variables.",
+          "type": "string"
+        },
+        "items": {
+          "description": "Environment variables to be read from the file.",
+          "patternProperties": {
+            "^[A-Z_]+$": {
+              "format": "path",
+              "type": "string"
+            }
+          },
+          "title": "Environment variables",
+          "type": "object"
+        },
+        "overwrite": {
+          "default": true,
+          "description": "Whether to overwrite existing environment variables.",
+          "title": "overwrite existing environment variables.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "type",
+        "items"
+      ],
+      "title": "FileEnvsV1",
       "type": "object"
     },
     "GoogleCloudSecretManagerEnvsV1": {
@@ -231,10 +268,6 @@
       "type": "object"
     }
   },
-  "allOf": [
-    {
-      "$ref": "#/$defs/ConfigV1"
-    }
-  ],
+  "$ref": "#/$defs/ConfigV1",
   "title": "Config"
 }
