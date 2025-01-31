@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, assert_never
 from pydantic import SecretStr
 
 from envix.config.v1.envs import EnvsV1
+from envix.config.v1.envs.file_envs_v1 import FileEnvsV1
 from envix.config.v1.envs.google_cloud_secret_manager_envs_v1 import (
     GoogleCloudSecretManagerEnvsV1,
 )
@@ -12,6 +13,7 @@ from envix.config.v1.envs.local_envs_v1 import LocalEnvsV1
 from envix.config.v1.envs.raw_envs_v1 import RawEnvsV1
 from envix.exception import (
     EnvixEnvInjectionError,
+    EnvixEnvironmentFileLoadError,
     EnvixEnvironmentNotSetting,
     EnvixGoogleCloudSecretManagerError,
 )
@@ -31,6 +33,26 @@ async def load_raw_envs_v1(
         if envs.overwrite or envname not in os.environ:
             os.environ[envname] = secret
             secrets[envname] = SecretStr(secret)
+
+    return secrets, errors
+
+
+async def load_file_envs_v1(
+    envs: FileEnvsV1,
+) -> tuple[Secrets, list[EnvixEnvInjectionError]]:
+    secrets: Secrets = {}
+    errors: list[EnvixEnvInjectionError] = []
+
+    for envname, filepath in envs.items.items():
+        if envs.overwrite or envname not in os.environ:
+            try:
+                with open(filepath, "r") as f:
+                    envvar = f.read().strip()
+                    os.environ[envname] = envvar
+                    secrets[envname] = SecretStr(envvar)
+
+            except Exception:
+                errors.append(EnvixEnvironmentFileLoadError(envname, filepath))
 
     return secrets, errors
 
@@ -94,6 +116,9 @@ async def load_envs_v1(
     match envs:
         case RawEnvsV1():
             return await load_raw_envs_v1(envs)
+
+        case FileEnvsV1():
+            return await load_file_envs_v1(envs)
 
         case LocalEnvsV1():
             return await load_local_envs_v1(envs)

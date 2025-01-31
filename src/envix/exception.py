@@ -42,6 +42,16 @@ class EnvixEnvironmentNotSetting(EnvixEnvInjectionError, ValueError):
         return f"Environment variable not set: {self.envname}"
 
 
+class EnvixEnvironmentFileLoadError(EnvixEnvInjectionError, ValueError):
+    def __init__(self, envname: str, filepath: Path):
+        self.envname = envname
+        self.filepath = filepath
+
+    @property
+    def message(self) -> str:
+        return f"Environment {self.envname} file load error: {self.filepath}"
+
+
 class EnvixGoogleCloudSecretManagerError(EnvixEnvInjectionError):
     def __init__(self, envname: str, error: Exception):
         self.envname = envname
