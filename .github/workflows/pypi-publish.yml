@@ -3,7 +3,7 @@ name: pypi_publish
 on:
   push:
     tags:
-      - "v*"
+      - 'v*'
   workflow_dispatch:
 
 jobs:
@@ -11,7 +11,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Build and publish to pypi
-        uses: JRubics/poetry-publish@v1.16
-        with:
-          pypi_token: ${{ secrets.PYPI_TOKEN }}
+      - uses: astral-sh/setup-uv@v5
+      - run: uv publish --token ${{ secrets.PYPI_TOKEN }}
